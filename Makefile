@@ -1,0 +1,49 @@
+.PHONY: all build dev run clean frontend backend
+
+# Default target
+all: build
+
+# Build everything
+build: frontend backend
+
+# Build frontend
+frontend:
+	cd frontend && npm install && npm run build
+
+# Build backend (includes embedded frontend)
+backend:
+	go build -o firehose .
+
+# Run in development mode (frontend hot reload + backend)
+dev:
+	@echo "Starting development servers..."
+	@echo "Run 'cd frontend && npm run dev' in another terminal"
+	go run . --dev
+
+# Run production build
+run: build
+	./firehose
+
+# Clean build artifacts
+clean:
+	rm -f firehose
+	rm -rf frontend/dist
+	rm -rf frontend/node_modules
+
+# Initialize database
+db-init:
+	psql -h localhost -U postgres -d pooler_demo -f init.sql
+
+# Run tests
+test:
+	go test ./...
+
+# Format code
+fmt:
+	go fmt ./...
+	cd frontend && npm run format 2>/dev/null || true
+
+# Tidy dependencies
+tidy:
+	go mod tidy
+	cd frontend && npm install

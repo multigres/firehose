@@ -11,6 +11,7 @@ bin/
 *.dll
 *.so
 *.dylib
+firehose
 
 # Environment files
 .env

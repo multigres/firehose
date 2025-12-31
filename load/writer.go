@@ -1,0 +1,113 @@
+package load
+
+import (
+	"context"
+	"fmt"
+	"math/rand"
+	"time"
+
+	"firehose/db"
+	"firehose/metrics"
+
+	"github.com/jackc/pgx/v5"
+	"golang.org/x/time/rate"
+)
+
+// WriteWorker executes write queries against the database
+type WriteWorker struct {
+	connMgr   *db.ConnectionManager
+	limiter   *rate.Limiter
+	collector *metrics.Collector
+	churnRate float64 // Probability of churning connection per second
+}
+
+// NewWriteWorker creates a new write worker
+func NewWriteWorker(connMgr *db.ConnectionManager, limiter *rate.Limiter, collector *metrics.Collector, churnRate float64) *WriteWorker {
+	return &WriteWorker{
+		connMgr:   connMgr,
+		limiter:   limiter,
+		collector: collector,
+		churnRate: churnRate,
+	}
+}
+
+// Run starts the write worker loop with its own connection
+func (w *WriteWorker) Run(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+
+		// Create a new connection
+		conn, err := w.connMgr.Connect(ctx)
+		if err != nil {
+			// Record connection error and backoff
+			w.collector.RecordWrite(0, err)
+			time.Sleep(100 * time.Millisecond)
+			continue
+		}
+
+		// Run queries on this connection until churn or context done
+		w.runWithConnection(ctx, conn)
+
+		// Close connection
+		conn.Close(ctx)
+		w.connMgr.Release()
+	}
+}
+
+func (w *WriteWorker) runWithConnection(ctx context.Context, conn *pgx.Conn) {
+	// Calculate when to churn this connection
+	var churnAfter time.Time
+	if w.churnRate > 0 {
+		avgLifetime := time.Duration(float64(time.Second) / w.churnRate)
+		lifetime := time.Duration(rand.ExpFloat64() * float64(avgLifetime))
+		if lifetime < 100*time.Millisecond {
+			lifetime = 100 * time.Millisecond
+		}
+		if lifetime > 60*time.Second {
+			lifetime = 60 * time.Second
+		}
+		churnAfter = time.Now().Add(lifetime)
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			// Check if it's time to churn
+			if w.churnRate > 0 && time.Now().After(churnAfter) {
+				return // Exit to churn connection
+			}
+
+			// Wait for rate limiter
+			if err := w.limiter.Wait(ctx); err != nil {
+				return
+			}
+
+			// Execute query
+			w.executeWrite(ctx, conn)
+		}
+	}
+}
+
+func (w *WriteWorker) executeWrite(ctx context.Context, conn *pgx.Conn) {
+	start := time.Now()
+
+	// Generate random user data
+	randNum := rand.Int63()
+	username := fmt.Sprintf("user_%d", randNum)
+	email := fmt.Sprintf("user_%d@example.com", randNum)
+
+	var newID int64
+	err := conn.QueryRow(ctx,
+		"INSERT INTO users (username, email) VALUES ($1, $2) RETURNING id",
+		username, email,
+	).Scan(&newID)
+
+	latency := time.Since(start)
+	w.collector.RecordWrite(latency, err)
+}
