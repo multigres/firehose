@@ -9,6 +9,7 @@ A load testing UI for Postgres connection poolers with real-time latency and thr
 - **Adjustable Load** — Control connections, read QPS, and write QPS with live sliders
 - **Real-time Metrics** — Latency (P50/P99), throughput, and error rates streamed via WebSocket
 - **High Throughput** — Go backend with goroutines can push tens of thousands of QPS
+- **Single Binary** — Frontend embedded via `go:embed`, one binary to run
 - **Clean UI** — React dashboard with live-updating charts
 
 ## Quick Start
@@ -16,7 +17,7 @@ A load testing UI for Postgres connection poolers with real-time latency and thr
 ### Prerequisites
 
 - Go 1.21+
-- Node.js 18+
+- Node.js 18+ (for building frontend)
 - PostgreSQL 14+ (or your connection pooler pointing to Postgres)
 
 ### 1. Set Up the Database
@@ -25,27 +26,25 @@ A load testing UI for Postgres connection poolers with real-time latency and thr
 psql -h localhost -U postgres -d pooler_demo -f init.sql
 ```
 
-### 2. Start the Backend
+### 2. Build & Run
 
 ```bash
-cd backend
-cp .env.example .env  # Edit with your database URL
-go run .
-```
-
-### 3. Start the Frontend
-
-```bash
+# Build frontend
 cd frontend
 npm install
-npm run dev
+npm run build
+cd ..
+
+# Build and run
+go build -o firehose .
+./firehose
 ```
 
-Open [http://localhost:5173](http://localhost:5173) and start blasting.
+Open [http://localhost:8080](http://localhost:8080) and start blasting.
 
 ## Configuration
 
-Environment variables for the backend:
+Environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -58,46 +57,50 @@ Environment variables for the backend:
 ## Architecture
 
 ```
-┌────────────────┐      HTTP/WS       ┌────────────────┐
-│                │◄──────────────────►│                │
-│  React + Vite  │                    │   Go Backend   │
-│                │                    │                │
-└────────────────┘                    └───────┬────────┘
-                                              │
-                                              ▼
-                                     ┌────────────────┐
-                                     │  Your Pooler   │
-                                     └───────┬────────┘
-                                              │
-                                              ▼
-                                     ┌────────────────┐
-                                     │   PostgreSQL   │
-                                     └────────────────┘
+┌────────────────────────────────────────────────────┐
+│               firehose binary                      │
+│                                                    │
+│  ┌──────────────────────────────────────────────┐ │
+│  │  Embedded React UI (go:embed)                │ │
+│  └──────────────────────────────────────────────┘ │
+│                                                    │
+│  ┌──────────────────────────────────────────────┐ │
+│  │  HTTP Server (:8080)                         │ │
+│  │  • /*          → Static files                │ │
+│  │  • /api/*      → REST endpoints              │ │
+│  │  • /ws/metrics → WebSocket stream            │ │
+│  └──────────────────────────────────────────────┘ │
+│                                                    │
+│  ┌──────────────────────────────────────────────┐ │
+│  │  Load Generator                              │ │
+│  │  • Worker goroutines                         │ │
+│  │  • Rate limiting                             │ │
+│  │  • Metrics collection                        │ │
+│  └──────────────────────────────────────────────┘ │
+└─────────────────────────┬──────────────────────────┘
+                          │
+                          ▼
+                 ┌────────────────┐
+                 │  Your Pooler   │
+                 └───────┬────────┘
+                         │
+                         ▼
+                 ┌────────────────┐
+                 │   PostgreSQL   │
+                 └────────────────┘
 ```
-
-The Go backend spawns worker goroutines that execute queries at the configured rate. Metrics are collected, aggregated every 100ms, and streamed to the frontend via WebSocket.
 
 See [DESIGN.md](DESIGN.md) for the full technical design.
-
-## Docker Compose
-
-```bash
-docker-compose up
-```
-
-This starts Postgres, your pooler, the backend, and frontend. Access the dashboard at [http://localhost:3000](http://localhost:3000).
 
 ## Development
 
 ```bash
-# Run backend with hot reload
-cd backend
-go install github.com/air-verse/air@latest
-air
-
-# Run frontend
+# Terminal 1: Frontend with hot reload
 cd frontend
 npm run dev
+
+# Terminal 2: Backend (proxies to Vite dev server)
+go run . --dev
 ```
 
 ## Workload Details
