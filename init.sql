@@ -1,4 +1,4 @@
--- Firehose Demo Database Schema
+-- Supafirehose Demo Database Schema
 -- Run: psql -h localhost -U postgres -d pooler_demo -f init.sql
 
 -- Create users table for read/write operations
