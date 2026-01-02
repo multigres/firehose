@@ -12,7 +12,7 @@ frontend:
 
 # Build backend (includes embedded frontend)
 backend:
-	go build -o firehose .
+	go build -o supafirehose .
 
 # Run in development mode (frontend hot reload + backend)
 dev:
@@ -22,11 +22,11 @@ dev:
 
 # Run production build
 run: build
-	./firehose
+	./supafirehose
 
 # Clean build artifacts
 clean:
-	rm -f firehose
+	rm -f supafirehose
 	rm -rf frontend/dist
 	rm -rf frontend/node_modules
 

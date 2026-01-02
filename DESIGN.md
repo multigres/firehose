@@ -1,4 +1,4 @@
-# Postgres Connection Pooler Demo Application
+# SupaFirehose - Postgres Connection Pooler Demo Application
 
 ## Overview
 
@@ -15,11 +15,11 @@ A load testing and demonstration application for showcasing the capabilities of 
 
 ## Architecture
 
-Firehose is a single Go binary with the React frontend embedded using `go:embed`. One binary, one port, zero coordination.
+SupaFirehose is a single Go binary with the React frontend embedded using `go:embed`. One binary, one port, zero coordination.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    firehose binary                          │
+│                  supafirehose binary                        │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐   │
 │  │              Embedded React App (go:embed)           │   │
@@ -255,7 +255,7 @@ Streams metrics to the client every 100ms.
 ### Project Structure
 
 ```
-firehose/
+supafirehose/
 ├── main.go                 # Entry point, server setup, embeds frontend
 ├── config/
 │   └── config.go           # Configuration structs and loading
@@ -585,10 +585,10 @@ npm run build
 
 # Build single binary (embeds frontend/dist)
 cd ..
-go build -o firehose .
+go build -o supafirehose .
 
 # Run
-./firehose
+./supafirehose
 ```
 
 ---

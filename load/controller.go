@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"firehose/db"
-	"firehose/metrics"
+	"supafirehose/db"
+	"supafirehose/metrics"
 
 	"golang.org/x/time/rate"
 )

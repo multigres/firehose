@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"time"
 
-	"firehose/db"
-	"firehose/metrics"
+	"supafirehose/db"
+	"supafirehose/metrics"
 
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/time/rate"

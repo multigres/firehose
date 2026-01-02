@@ -15,11 +15,11 @@ import (
 	"syscall"
 	"time"
 
-	"firehose/api"
-	"firehose/config"
-	"firehose/db"
-	"firehose/load"
-	"firehose/metrics"
+	"supafirehose/api"
+	"supafirehose/config"
+	"supafirehose/db"
+	"supafirehose/load"
+	"supafirehose/metrics"
 )
 
 //go:embed frontend/dist/*
@@ -33,7 +33,7 @@ func main() {
 	// Load configuration
 	cfg := config.Load()
 
-	log.Printf("Starting Firehose on port %d", cfg.HTTPPort)
+	log.Printf("Starting SupaFirehose on port %d", cfg.HTTPPort)
 
 	// Create connection manager (no pool - direct connections)
 	connMgr := db.NewConnectionManager(cfg.DatabaseURL)

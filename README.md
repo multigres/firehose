@@ -1,8 +1,8 @@
-# Firehose 🔥
+# SupaFirehose 🔥
 
 A load testing UI for Postgres connection poolers with real-time latency and throughput metrics.
 
-![Firehose Dashboard](docs/screenshot.png)
+![SupaFirehose Dashboard](docs/screenshot.png)
 
 ## Features
 
@@ -36,8 +36,8 @@ npm run build
 cd ..
 
 # Build and run
-go build -o firehose .
-./firehose
+go build -o supafirehose .
+./supafirehose
 ```
 
 Open [http://localhost:8080](http://localhost:8080) and start blasting.
@@ -58,7 +58,7 @@ Environment variables:
 
 ```
 ┌────────────────────────────────────────────────────┐
-│               firehose binary                      │
+│             supafirehose binary                    │
 │                                                    │
 │  ┌──────────────────────────────────────────────┐ │
 │  │  Embedded React UI (go:embed)                │ │

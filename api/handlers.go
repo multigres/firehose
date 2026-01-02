@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"firehose/load"
-	"firehose/metrics"
+	"supafirehose/load"
+	"supafirehose/metrics"
 )
 
 // Handlers holds the HTTP handler dependencies

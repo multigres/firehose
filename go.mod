@@ -1,4 +1,4 @@
-module firehose
+module supafirehose
 
 go 1.25.1
 

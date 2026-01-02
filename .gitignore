@@ -12,6 +12,7 @@ bin/
 *.so
 *.dylib
 firehose
+supafirehose
 
 # Environment files
 .env

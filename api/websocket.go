@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"firehose/metrics"
+	"supafirehose/metrics"
 
 	"github.com/gorilla/websocket"
 )
