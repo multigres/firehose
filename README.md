@@ -1,6 +1,12 @@
-# SupaFirehose 🔥
+<p align="center">
+  <img src="assets/SupaFirehose-logo.png" alt="SupaFirehose Logo" width="200">
+</p>
 
-A load testing UI for Postgres connection poolers with real-time latency and throughput metrics.
+<h1 align="center">SupaFirehose</h1>
+
+<p align="center">
+  A load testing UI for Postgres connection poolers with real-time latency and throughput metrics.
+</p>
 
 ![SupaFirehose Dashboard](docs/screenshot.png)
 

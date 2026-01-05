@@ -90,8 +90,8 @@ function App() {
       <header className="bg-slate-800 border-b border-slate-700 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="SupaFirehose" className="h-10 w-10" />
             <h1 className="text-2xl font-bold text-white">SUPAFIREHOSE</h1>
-            <span className="text-2xl">🔥</span>
           </div>
           <div className="flex items-center gap-4">
             <ConnectionStatus isConnected={isConnected} />
